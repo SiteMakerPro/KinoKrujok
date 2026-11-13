@@ -20,37 +20,38 @@ class SiteController extends Controller
      * {@inheritdoc}
      */
     public function behaviors()
-		{
-				return [
-						'access' => [
-								'class' => \yii\filters\AccessControl::class,
-								'rules' => [
-										[
-												'allow' => true,
-												'actions' => ['auth', 'error', 'index', 'vote', 'history', 'participants'],
-												'roles' => ['?', '@'],
-										],
-										[
-												'allow' => true,
-												'actions' => ['logout', 'profile', 'add-vote', 'toggle-favorite', 'favorites'], 
-												'roles' => ['@'],
-										],
-										[
-												'allow' => true,
-												'actions' => ['admin-panel'],
-												'roles' => ['@'],
-												'matchCallback' => function ($rule, $action) {
-														return Yii::$app->user->identity->role === 'admin';
-												}
-										],
-								],
-								'denyCallback' => function ($rule, $action) {
-										Yii::$app->session->setFlash('error', 'У вас нет прав для доступа к этой странице.');
-										return Yii::$app->response->redirect(['site/index']);
-								},
-						],
-				];
-		}
+{
+    return [
+        'access' => [
+            'class' => \yii\filters\AccessControl::class,
+            'rules' => [
+                [
+                    'allow' => true,
+                    'actions' => ['auth', 'error', 'index', 'vote', 'history', 'participants'],
+                    'roles' => ['?', '@'],
+                ],
+                [
+                    'allow' => true,
+                    // ДОБАВИЛИ 'mark-as-watched' СЮДА
+                    'actions' => ['logout', 'profile', 'add-vote', 'toggle-favorite', 'favorites', 'mark-as-watched'], 
+                    'roles' => ['@'],
+                ],
+                [
+                    'allow' => true,
+                    'actions' => ['admin-panel'],
+                    'roles' => ['@'],
+                    'matchCallback' => function ($rule, $action) {
+                        return Yii::$app->user->identity->role === 'admin';
+                    }
+                ],
+            ],
+            'denyCallback' => function ($rule, $action) {
+                Yii::$app->session->setFlash('error', 'У вас нет прав для доступа к этой странице.');
+                return Yii::$app->response->redirect(['site/index']);
+            },
+        ],
+    ];
+}
 
     /**
      * {@inheritdoc}
@@ -466,6 +467,42 @@ public function actionParticipants()
     return $this->render('participants', [
         'votes' => $votes,
     ]);
+}
+
+public function actionMarkAsWatched($id)
+{
+    if (Yii::$app->user->isGuest) {
+        return $this->redirect(['site/auth']);
+    }
+
+    $userId = Yii::$app->user->id;
+
+    // Ищем, смотрел ли уже этот пользователь этот фильм
+    $userMovie = \app\models\UserMovie::findOne(['idU' => $userId, 'idM' => $id]);
+
+    if ($userMovie) {
+        $userMovie->viewingDate = date('Y-m-d');
+        if (!$userMovie->save()) {
+            Yii::$app->session->setFlash('error', 'Ошибка обновления: ' . json_encode($userMovie->getErrors(), JSON_UNESCAPED_UNICODE));
+        } else {
+            Yii::$app->session->setFlash('info', 'Дата просмотра обновлена на сегодня.');
+        }
+    } else {
+        $newUserMovie = new \app\models\UserMovie();
+        $newUserMovie->idU = $userId;
+        $newUserMovie->idM = $id;
+        $newUserMovie->viewingDate = date('Y-m-d');
+        $newUserMovie->isLiked = 0;
+        
+        // ДЕБАГ: если не сохраняется, выводим ошибку
+        if (!$newUserMovie->save()) {
+            Yii::$app->session->setFlash('error', 'Ошибка сохранения: ' . json_encode($newUserMovie->getErrors(), JSON_UNESCAPED_UNICODE));
+        } else {
+            Yii::$app->session->setFlash('success', 'Фильм добавлен в просмотренные!');
+        }
+    }
+
+    return $this->redirect(['site/index']);
 }
 
     /**
