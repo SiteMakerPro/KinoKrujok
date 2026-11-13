@@ -31,6 +31,103 @@ img {
 	max-width: 100%;
 	display: block;
 }
+
+.flash-container {
+	position: fixed;
+	top: 20px;
+	right: 20px;
+	z-index: 9999;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.flash-message {
+	padding: 15px 25px;
+	border-radius: var(--radius-md);
+	color: #fff;
+	font-family: var(--font-main);
+	font-size: 15px;
+	font-weight: 500;
+	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+	animation: slideInRight 0.3s ease-out forwards;
+	transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.flash-success {
+	background-color: #10b981;
+	border: 1px solid #059669;
+}
+
+.flash-info {
+	background-color: #f59e0b;
+	border: 1px solid #d97706;
+}
+
+.flash-error {
+	background-color: #ef4444;
+	border: 1px solid #dc2626;
+}
+
+.flash-hide {
+	opacity: 0;
+	transform: translateX(100%);
+}
+
+@keyframes slideInRight {
+	from {
+		transform: translateX(100%);
+		opacity: 0;
+	}
+	to {
+		transform: translateX(0);
+		opacity: 1;
+	}
+}
+
+.pagination-list {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.pagination-list li a,
+.pagination-list li span {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 40px;
+	height: 40px;
+	padding: 0 15px;
+	background-color: var(--bg-card);
+	color: var(--text-main);
+	border: 1px solid var(--border-color);
+	border-radius: var(--radius-sm);
+	text-decoration: none;
+	font-size: 14px;
+	font-weight: 500;
+	transition: all 0.3s ease;
+}
+
+.pagination-list li a:hover {
+	border-color: var(--accent);
+	color: var(--accent);
+}
+
+.pagination-list li.active-page span {
+	background-color: var(--accent);
+	color: #000000;
+	border-color: var(--accent);
+	font-weight: bold;
+}
+
+.pagination-list li.disabled-page span {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
 .content {
 	padding: 40px;
 	max-width: var(--container-width);
@@ -224,7 +321,6 @@ img {
 	--radius-sm: 8px;
 }
 
-/* Кнопка входа в шапке */
 .btn-login {
 	display: inline-flex;
 	align-items: center;
@@ -251,7 +347,6 @@ img {
 	flex-shrink: 0;
 }
 
-/* На мобильных оставляем только иконку */
 @media (max-width: 768px) {
 	.btn-login {
 		padding: 10px;
@@ -296,14 +391,12 @@ ul {
 	list-style: none;
 }
 
-/* --- Layout --- */
 .container {
 	max-width: 1200px;
 	margin: 0 auto;
 	padding: 0 24px;
 }
 
-/* --- Header --- */
 .header {
 	padding: 20px 0;
 	display: flex;
@@ -313,7 +406,6 @@ ul {
 	margin-bottom: 40px;
 }
 
-/* Скрываем обертку на десктопе, чтобы не ломать флекс */
 .header-top-mobile {
 	display: contents;
 }
@@ -395,7 +487,6 @@ ul {
 	object-fit: cover;
 }
 
-/* --- Hero Section --- */
 .hero {
 	position: relative;
 	display: flex;
@@ -406,14 +497,12 @@ ul {
 	overflow: hidden;
 }
 
-/* Контейнер для авторизованного юзера */
 .user-menu {
 	display: flex;
 	align-items: center;
 	gap: 15px;
 }
 
-/* Ссылка на профиль с именем */
 .user-profile-link {
 	display: flex;
 	align-items: center;
@@ -425,10 +514,9 @@ ul {
 }
 
 .user-profile-link:hover {
-	color: var(--accent); /* Твой неоновый цвет */
+	color: var(--accent);
 }
 
-/* Кнопка выхода */
 .btn-logout {
 	color: var(--text-muted);
 	text-decoration: none;
@@ -437,13 +525,12 @@ ul {
 }
 
 .btn-logout:hover {
-	color: #ff4d4d; /* Красный при наведении */
+	color: #ff4d4d;
 }
 
-/* Адаптив для мобилки: прячем имя, оставляем только иконку */
 @media (max-width: 768px) {
 	.user-profile-link span {
-		display: none; /* Скрываем имя */
+		display: none;
 	}
 }
 
@@ -504,7 +591,6 @@ ul {
 	transform: translateY(-2px);
 }
 
-/* --- Voting Section --- */
 .section-title {
 	display: flex;
 	align-items: center;
@@ -675,7 +761,6 @@ ul {
 	background-color: rgba(255, 255, 255, 0.02);
 }
 
-/* --- Moods Section --- */
 .moods-grid {
 	display: grid;
 	grid-template-columns: repeat(4, 1fr);
@@ -736,7 +821,6 @@ ul {
 	color: var(--text-main);
 }
 
-/* --- History Section --- */
 .history-header {
 	display: flex;
 	justify-content: space-between;
@@ -832,7 +916,6 @@ ul {
 	display: none;
 }
 
-/* --- Footer --- */
 .footer {
 	border-top: 1px solid var(--border-color);
 	padding: 40px 0;
@@ -907,7 +990,6 @@ ul {
 	color: var(--text-muted);
 }
 
-/* --- Планшетная версия --- */
 @media (max-width: 1024px) {
 	.voting-card {
 		flex-direction: column;
@@ -935,7 +1017,6 @@ ul {
 		padding: 0 16px;
 	}
 
-	/* Header */
 	.header {
 		flex-direction: column;
 		align-items: flex-start;
@@ -958,10 +1039,10 @@ ul {
 		font-size: 18px;
 	}
 	.logo img {
-		height: 24px; /* Чуть уменьшаем логотип */
+		height: 24px;
 	}
 	.header-right .user-profile span {
-		display: none; /* Скрываем имя */
+		display: none;
 	}
 	.avatar {
 		width: 32px;
@@ -983,7 +1064,6 @@ ul {
 		padding-bottom: 6px;
 	}
 
-	/* Hero */
 	.hero {
 		flex-direction: column;
 		align-items: stretch;
@@ -1016,13 +1096,11 @@ ul {
 		padding: 16px;
 	}
 
-	/* Section Title */
 	.section-title {
 		font-size: 20px;
 		margin-bottom: 16px;
 	}
 
-	/* Voting */
 	.voting-card {
 		flex-direction: column;
 		padding: 20px;
@@ -1035,7 +1113,7 @@ ul {
 		gap: 20px;
 	}
 	.voting-poster {
-		width: 160px; /* Уменьшаем постер */
+		width: 160px;
 		max-width: 100%;
 		margin: 0 auto;
 	}
@@ -1077,7 +1155,6 @@ ul {
 		width: 100%;
 	}
 
-	/* Moods */
 	.moods-grid {
 		grid-template-columns: repeat(2, 1fr);
 		gap: 12px;
@@ -1105,12 +1182,11 @@ ul {
 		right: 16px;
 	}
 
-	/* History */
 	.history-header {
 		margin-bottom: 16px;
 	}
 	.history-link {
-		display: none; /* Скрываем ссылку сверху */
+		display: none;
 	}
 	.history-carousel-container {
 		margin-bottom: 24px;
@@ -1129,11 +1205,10 @@ ul {
 		font-size: 12px;
 	}
 	.mobile-history-btn {
-		display: flex; /* Показываем кнопку снизу */
+		display: flex;
 		margin-bottom: 40px;
 	}
 
-	/* Footer */
 	.footer {
 		flex-direction: column;
 		gap: 32px;
@@ -1159,9 +1234,9 @@ ul {
 		gap: 24px;
 	}
 	.socials {
-		order: 1; /* Соцсети идут первыми */
+		order: 1;
 	}
 	.copyright {
-		order: 2; /* Копирайт снизу */
+		order: 2;
 	}
 }

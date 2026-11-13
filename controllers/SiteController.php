@@ -7,6 +7,7 @@ use yii\web\Controller;
 use yii\web\Response;
 use app\models\LoginForm;
 use app\models\ContactForm;
+use app\models\Favorite;
 use app\models\Genre;
 use app\models\Movie;
 use app\models\SignupForm;
@@ -19,37 +20,37 @@ class SiteController extends Controller
      * {@inheritdoc}
      */
     public function behaviors()
-{
-    return [
-        'access' => [
-            'class' => \yii\filters\AccessControl::class,
-            'rules' => [
-                [
-                    'allow' => true,
-                    'actions' => ['auth', 'error', 'index', 'vote', 'history'],
-                    'roles' => ['?', '@'],
-                ],
-                [
-                    'allow' => true,
-                    'actions' => ['logout', 'profile'],
-                    'roles' => ['@'],
-                ],
-                [
-                    'allow' => true,
-                    'actions' => ['admin-panel'],
-                    'roles' => ['@'],
-                    'matchCallback' => function ($rule, $action) {
-                        return Yii::$app->user->identity->role === 'admin';
-                    }
-                ],
-            ],
-            'denyCallback' => function ($rule, $action) {
-                Yii::$app->session->setFlash('error', 'У вас нет прав для доступа к этой странице.');
-                return Yii::$app->response->redirect(['site/index']);
-            },
-        ],
-    ];
-}
+		{
+				return [
+						'access' => [
+								'class' => \yii\filters\AccessControl::class,
+								'rules' => [
+										[
+												'allow' => true,
+												'actions' => ['auth', 'error', 'index', 'vote', 'history', 'participants'],
+												'roles' => ['?', '@'],
+										],
+										[
+												'allow' => true,
+												'actions' => ['logout', 'profile', 'add-vote', 'toggle-favorite', 'favorites'], 
+												'roles' => ['@'],
+										],
+										[
+												'allow' => true,
+												'actions' => ['admin-panel'],
+												'roles' => ['@'],
+												'matchCallback' => function ($rule, $action) {
+														return Yii::$app->user->identity->role === 'admin';
+												}
+										],
+								],
+								'denyCallback' => function ($rule, $action) {
+										Yii::$app->session->setFlash('error', 'У вас нет прав для доступа к этой странице.');
+										return Yii::$app->response->redirect(['site/index']);
+								},
+						],
+				];
+		}
 
     /**
      * {@inheritdoc}
@@ -111,36 +112,72 @@ class SiteController extends Controller
         'pagination' => false,
     ]);
 
+    $userVoteMovieId = null;
+    if (!Yii::$app->user->isGuest) {
+        $userVote = \app\models\Vote::findOne(['user_id' => Yii::$app->user->id]);
+        if ($userVote) {
+            $userVoteMovieId = $userVote->movie_id;
+        }
+    }
+
     return $this->render('index', [
         'topMovie' => $topMovie,
         'totalVotes' => $totalVotes,
         'totalUsers' => $totalUsers,
         'moodDataProvider' => $moodDataProvider,
         'historyDataProvider' => $historyDataProvider,
+        'userVoteMovieId' => $userVoteMovieId, // <--- ПЕРЕДАЕМ ВО ВЬЮХУ
     ]);
 
     }
 
-		public function actionHistory()
-		{
-			$userId = 3;
+		public function actionHistory($genre_id = null, $status = null, $sort = 'newest')
+{
+    if (Yii::$app->user->isGuest) {
+        return $this->redirect(['site/auth']);
+    }
 
-			$query = Movie::find()
-					->with('genres')
-					->innerJoin('user_movie', 'user_movie.idM = movie.id')
-					->where(['user_movie.idU' => $userId])
-					->select(['movie.*', 'user_movie.viewingDate', 'user_movie.isLiked'])
-					->asArray();
-	
-			$dataProvider = new \yii\data\ActiveDataProvider([
-					'query' => $query,
-					'pagination' => ['pageSize' => 8],
-			]);
-	
-			return $this->render('history', [
-					'dataProvider' => $dataProvider,
-			]);
-		}
+    $userId = Yii::$app->user->id;
+    $query = Movie::find()
+        ->with('genres')
+        ->innerJoin('user_movie', 'user_movie.idM = movie.id')
+        ->where(['user_movie.idU' => $userId])
+        ->select(['movie.*', 'user_movie.viewingDate', 'user_movie.isLiked'])
+				->asArray();
+    if ($genre_id) {
+        $query->innerJoin('movie_genre', 'movie_genre.movie_id = movie.id')
+              ->andWhere(['movie_genre.genre_id' => $genre_id])
+              ->distinct();
+    }
+    if ($status !== null && $status !== '') {
+        $query->andWhere(['user_movie.isLiked' => $status]);
+    }
+    if ($sort === 'oldest') {
+        $query->orderBy(['user_movie.viewingDate' => SORT_ASC]);
+    } elseif ($sort === 'rating') {
+        $query->orderBy(['movie.rating' => SORT_DESC]);
+    } else {
+        $query->orderBy(['user_movie.viewingDate' => SORT_DESC]);
+    }
+
+    $dataProvider = new \yii\data\ActiveDataProvider([
+        'query' => $query,
+        'pagination' => [
+            'pageSize' => 4,
+        ],
+        'sort' => false, 
+    ]);
+
+    $genres = \app\models\Genre::find()->orderBy(['name' => SORT_ASC])->all();
+
+    return $this->render('history', [
+        'dataProvider' => $dataProvider,
+        'genres' => $genres,
+        'currentGenreId' => $genre_id,
+        'currentStatus' => $status,
+        'currentSort' => $sort, // Передаем текущую сортировку во вьюху
+    ]);
+}
 
 		public function actionVote($genre_id = null)
 		{
@@ -182,6 +219,41 @@ class SiteController extends Controller
 					'totalVotes' => $totalVotes
 			]);
 		}
+		public function actionAddVote($id)
+{
+    if (Yii::$app->user->isGuest) {
+        return $this->redirect(['site/auth']);
+    }
+
+    $userId = Yii::$app->user->id;
+    $currentVote = \app\models\Vote::findOne(['user_id' => $userId, 'movie_id' => $id]);
+    if ($currentVote) {
+        Yii::$app->session->setFlash('info', 'Вы уже голосовали за этот фильм.');
+        return $this->redirect(Yii::$app->request->referrer ?: ['site/vote']);
+    }
+    $previousVote = \app\models\Vote::findOne(['user_id' => $userId]);
+    
+    if ($previousVote) {
+        \app\models\Movie::updateAllCounters(['votesCountNumber' => -1], ['id' => $previousVote->movie_id]);
+        $previousVote->movie_id = $id;
+        
+        if ($previousVote->save()) {
+            \app\models\Movie::updateAllCounters(['votesCountNumber' => 1], ['id' => $id]);
+            Yii::$app->session->setFlash('success', 'Ваш голос перенесен на этот фильм!');
+        }
+    } else {
+        $newVote = new \app\models\Vote();
+        $newVote->user_id = $userId;
+        $newVote->movie_id = $id;
+        
+        if ($newVote->save()) {
+            \app\models\Movie::updateAllCounters(['votesCountNumber' => 1], ['id' => $id]);
+            Yii::$app->session->setFlash('success', 'Ваш голос успешно учтен!');
+        }
+    }
+
+    return $this->redirect(Yii::$app->request->referrer ?: ['site/vote']);
+}
 
 		public function actionProfile()
 		{
@@ -189,7 +261,7 @@ class SiteController extends Controller
 						return $this->redirect(['site/auth']);
 				}
 
-				/** @var \app\models\User $user */
+				
 				$user = Yii::$app->user->identity;
 				$userId = $user->id;
 
@@ -336,6 +408,65 @@ class SiteController extends Controller
 		{
 			return $this->render('register');
 		}
+
+		public function actionFavorites()
+{
+    if (Yii::$app->user->isGuest) {
+        return $this->redirect(['site/auth']);
+    }
+
+    $userId = Yii::$app->user->id;
+    $query = \app\models\Movie::find()
+        ->innerJoin('favorite', 'favorite.movie_id = movie.id')
+        ->where(['favorite.user_id' => $userId])
+        ->with('genres')
+        ->select(['movie.*'])
+        ->orderBy(['favorite.id' => SORT_DESC]);
+
+    $dataProvider = new \yii\data\ActiveDataProvider([
+        'query' => $query,
+        'pagination' => ['pageSize' => 12],
+    ]);
+
+    return $this->render('favorites', [
+        'dataProvider' => $dataProvider,
+    ]);
+}
+
+public function actionToggleFavorite($id)
+{
+    if (Yii::$app->user->isGuest) {
+        return $this->redirect(['site/auth']);
+    }
+
+    $userId = Yii::$app->user->id;
+    $favorite = Favorite::findOne(['user_id' => $userId, 'movie_id' => $id]);
+
+    if ($favorite) {
+        $favorite->delete();
+        Yii::$app->session->setFlash('info', 'Фильм удален из избранного.');
+    } else {
+        $newFav = new Favorite();
+        $newFav->user_id = $userId;
+        $newFav->movie_id = $id;
+        $newFav->save();
+        Yii::$app->session->setFlash('success', 'Фильм добавлен в избранное!');
+    }
+
+    return $this->redirect(Yii::$app->request->referrer ?: ['site/index']);
+}
+
+public function actionParticipants()
+{
+    $votes = \app\models\Vote::find()
+        ->with(['user', 'movie'])
+        ->orderBy(['id' => SORT_DESC])
+        ->all();
+
+    return $this->render('participants', [
+        'votes' => $votes,
+    ]);
+}
 
     /**
      * Displays about page.

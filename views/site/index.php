@@ -30,8 +30,10 @@ use yii\widgets\ListView;
 	<div class="voting-card">
 		<div class="voting-movie">
 			<?= Html::img('@web/img/home/' . $topMovie['imgPath'] . '.jpg', [
-            'alt' =>
-			$topMovie['title'], 'class' => 'voting-poster', 'width' => 268 ]) ?>
+            'alt' => $topMovie['title'], 
+            'class' => 'voting-poster', 
+            'width' => 268 
+            ]) ?>
 
 			<div class="voting-info">
 				<h3><?= Html::encode($topMovie['title']) ?></h3>
@@ -43,44 +45,48 @@ use yii\widgets\ListView;
 				</div>
 
 				<div class="timer-label">
-					<svg
-						width="16"
-						height="16"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="2"
-						stroke-linecap="round"
-						stroke-linejoin="round">
+					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<circle cx="12" cy="12" r="10"></circle>
 						<polyline points="12 6 12 12 16 14"></polyline>
 					</svg>
 					До конца голосования
 				</div>
 
-				<div class="timer">18 : 24 : 37</div>
+				<div class="timer">
+					<span id="timer-hours">00</span> : 
+					<span id="timer-minutes">00</span> : 
+					<span id="timer-seconds">00</span>
+				</div>
 				<div class="timer-labels">
 					<span>часов</span>
 					<span>минут</span>
 					<span>секунд</span>
 				</div>
 
-				<button class="btn-vote">Мой голос</button>
+                <?php if (Yii::$app->user->isGuest): ?>
+                    <a href="<?= \yii\helpers\Url::to(['site/auth']) ?>" class="btn-vote" style="display: inline-flex; justify-content: center; align-items: center; text-decoration: none;">
+                        Войти, чтобы голосовать
+                    </a>
+                <?php elseif ($userVoteMovieId == $topMovie['id']): ?>
+                    <button class="btn-vote" disabled style="background-color: #1e2c3a; color: #8b9ba8; cursor: not-allowed;">
+                        Вы проголосовали
+                    </button>
+                <?php elseif ($userVoteMovieId): ?>
+                    <a href="<?= \yii\helpers\Url::to(['site/vote']) ?>" class="btn-vote" style="display: inline-flex; justify-content: center; align-items: center; text-decoration: none;">
+                        Изменить голос
+                    </a>
+                <?php else: ?>
+                    <a href="<?= \yii\helpers\Url::to(['site/vote']) ?>" class="btn-vote" style="display: inline-flex; justify-content: center; align-items: center; text-decoration: none;">
+                        Мой голос
+                    </a>
+                <?php endif; ?>
 			</div>
 		</div>
 
 		<div class="voting-stats">
 			<div class="stats-header">
 				<div class="stats-label">
-					<svg
-						width="18"
-						height="18"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="2"
-						stroke-linecap="round"
-						stroke-linejoin="round">
+					<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
 						<circle cx="9" cy="7" r="4"></circle>
 						<path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
@@ -99,12 +105,12 @@ use yii\widgets\ListView;
 				<div class="progress-fill" style="width: <?= $totalUsers > 0 ? round(($totalVotes / $totalUsers) * 100) : 0 ?>%;"></div>
 			</div>
 
-			<button class="btn-outline">
+			<a href="<?= \yii\helpers\Url::to(['site/participants']) ?>" class="btn-outline" style="display: flex; align-items: center; justify-content: space-between; text-decoration: none; width: 100%; box-sizing: border-box;">
 				Посмотреть всех участников
 				<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
 					<path d="M8 5v14l11-7z" />
 				</svg>
-			</button>
+			</a>
 		</div>
 	</div>
 </section>

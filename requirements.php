@@ -10,10 +10,6 @@
  * ln ../requirements.php requirements.php
  */
 
-// you may need to adjust this path to the correct Yii framework path
-// uncomment and adjust the following line if Yii is not located at the default path
-//$frameworkPath = dirname(__FILE__) . '/vendor/yiisoft/yii2';
-
 
 if (!isset($frameworkPath)) {
     $searchPaths = array(
@@ -35,7 +31,6 @@ if (!isset($frameworkPath) || !is_dir($frameworkPath)) {
         . '<p>Please refer to the <abbr title="' . dirname(__FILE__) . "/README.md\">README</abbr> on how to install Yii.</p>\n";
 
     if (!empty($_SERVER['argv'])) {
-        // do not print HTML when used in console mode
         echo strip_tags($message);
     } else {
         echo $message;
@@ -72,7 +67,6 @@ if (extension_loaded('gd')) {
  * Adjust requirements according to your application specifics.
  */
 $requirements = array(
-    // Database :
     array(
         'name' => 'PDO extension',
         'mandatory' => true,
@@ -100,7 +94,6 @@ $requirements = array(
         'by' => 'All DB-related classes',
         'memo' => 'Required for PostgreSQL database.',
     ),
-    // Cache :
     array(
         'name' => 'Memcache extension',
         'mandatory' => false,
@@ -108,7 +101,6 @@ $requirements = array(
         'by' => '<a href="http://www.yiiframework.com/doc-2.0/yii-caching-memcache.html">MemCache</a>',
         'memo' => extension_loaded('memcached') ? 'To use memcached set <a href="http://www.yiiframework.com/doc-2.0/yii-caching-memcache.html#$useMemcached-detail">MemCache::useMemcached</a> to <code>true</code>.' : ''
     ),
-    // CAPTCHA:
     array(
         'name' => 'GD PHP extension with FreeType support',
         'mandatory' => false,
@@ -123,7 +115,6 @@ $requirements = array(
         'by' => '<a href="http://www.yiiframework.com/doc-2.0/yii-captcha-captcha.html">Captcha</a>',
         'memo' => $imagickMemo,
     ),
-    // PHP ini :
     'phpExposePhp' => array(
         'name' => 'Expose PHP',
         'mandatory' => false,
@@ -146,8 +137,6 @@ $requirements = array(
         'memo' => 'PHP mail SMTP server required',
     ),
 );
-
-// OPcache check
 if (!version_compare(phpversion(), '5.5', '>=')) {
     $requirements[] = array(
         'name' => 'APC extension',

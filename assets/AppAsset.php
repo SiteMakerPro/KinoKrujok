@@ -28,6 +28,7 @@ class AppAsset extends AssetBundle
 				'css/admin.css'
     ];
     public $js = [
+			'js/timer.js'
     ];
     public $depends = [
         'yii\web\YiiAsset',

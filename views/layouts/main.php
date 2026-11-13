@@ -27,20 +27,6 @@ $this->title = 'КиноКружок'; ?>
 						</a>
 					</div>
 					<div class="header-right">
-						<button class="icon-btn" aria-label="Уведомления">
-							<svg
-								width="24"
-								height="24"
-								viewBox="0 0 24 24"
-								fill="none"
-								stroke="currentColor"
-								stroke-width="2"
-								stroke-linecap="round"
-								stroke-linejoin="round">
-								<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-								<path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-							</svg>
-						</button>
 
 						<?php if (Yii::$app->user->isGuest): ?>
 						<a href="<?= Url::to(['site/auth']) ?>" class="btn-login">
@@ -100,6 +86,17 @@ $this->title = 'КиноКружок'; ?>
 					<?php endif; ?>
 				</nav>
 			</header>
+			<?php
+$flashes = Yii::$app->session->getAllFlashes();
+if (!empty($flashes)): ?>
+    <div class="flash-container" id="flash-container">
+        <?php foreach ($flashes as $type => $message): ?>
+            <div class="flash-message flash-<?= $type ?>">
+                <?= is_array($message) ? implode('<br>', $message) : $message ?>
+            </div>
+        <?php endforeach; ?>
+    </div>
+<?php endif; ?>
 			<?= $content ?>
 			<!-- Footer -->
 			<footer class="footer">
@@ -150,6 +147,20 @@ $this->title = 'КиноКружок'; ?>
 			</footer>
 		</div>
 		<?php $this->endBody() ?>
+		<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const flashMessages = document.querySelectorAll('.flash-message');
+        
+        flashMessages.forEach(function(message) {
+            setTimeout(function() {
+                message.classList.add('flash-hide');
+                setTimeout(function() {
+                    message.remove();
+                }, 500);
+            }, 3000);
+        });
+    });
+</script>
 	</body>
 </html>
 <?php $this->endPage(); ?>

@@ -28,7 +28,6 @@ class MovieSearch extends Movie
      */
     public function scenarios()
     {
-        // bypass scenarios() implementation in the parent class
         return Model::scenarios();
     }
 
@@ -43,8 +42,6 @@ class MovieSearch extends Movie
     {
         $query = Movie::find();
 
-        // add conditions that should always apply here
-
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
         ]);
@@ -52,12 +49,8 @@ class MovieSearch extends Movie
         $this->load($params);
 
         if (!$this->validate()) {
-            // uncomment the following line if you do not want to return any records when validation fails
-            // $query->where('0=1');
             return $dataProvider;
         }
-
-        // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
             'year' => $this->year,

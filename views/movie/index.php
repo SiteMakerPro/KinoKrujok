@@ -3,9 +3,9 @@
 use yii\helpers\Html;
 use yii\grid\GridView;
 
-/* @var $this yii\web\View */
-/* @var $searchModel app\models\MovieSearch */
-/* @var $dataProvider yii\data\ActiveDataProvider */
+
+
+
 
 $this->title = 'Movies';
 $this->params['breadcrumbs'][] = $this->title;
@@ -31,8 +31,6 @@ $this->params['breadcrumbs'][] = $this->title;
             'year',
             'rating',
             'imgPath',
-            //'miniImgPath',
-            //'votesCountNumber',
 
             ['class' => 'yii\grid\ActionColumn'],
         ],

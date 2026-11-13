@@ -46,7 +46,6 @@ button {
 	padding: 0 24px;
 }
 
-/* --- Header --- */
 .header {
 	padding: 20px 0;
 	display: flex;
@@ -137,7 +136,6 @@ button {
 	object-fit: cover;
 }
 
-/* --- Voting Hero --- */
 .voting-hero {
 	position: relative;
 	display: flex;
@@ -198,7 +196,6 @@ button {
 	color: var(--text-muted);
 }
 
-/* Скрываем блок таймера на десктопе, так как он встроен в текст */
 .voting-hero-timer-block {
 	display: none;
 }
@@ -206,7 +203,6 @@ button {
 	display: none;
 }
 
-/* --- Filters --- */
 .filters {
 	display: flex;
 	gap: 12px;
@@ -236,7 +232,6 @@ button {
 	border-color: var(--accent);
 }
 
-/* --- Movie Grid --- */
 .movie-grid {
 	display: grid;
 	grid-template-columns: repeat(4, 1fr);
@@ -254,11 +249,11 @@ button {
 }
 
 .movie-card-top {
-	display: contents; /* Десктоп: элементы ведут себя как прямые потомки карточки */
+	display: contents;
 }
 
 .movie-card-bottom {
-	display: contents; /* Десктоп */
+	display: contents;
 }
 
 .movie-poster-wrap {
@@ -285,9 +280,7 @@ button {
 	align-items: center;
 	justify-content: center;
 	color: #fff;
-	transition:
-		background-color 0.3s,
-		color 0.3s;
+	transition: background-color 0.3s, color 0.3s;
 }
 
 .fav-btn:hover {
@@ -373,7 +366,6 @@ button {
 	padding: 12px;
 }
 
-/* --- Bottom Section (Leaders & Rules) --- */
 .bottom-section {
 	display: grid;
 	grid-template-columns: 2fr 1fr;
@@ -559,7 +551,6 @@ button {
 	line-height: 1.6;
 }
 
-/* --- Footer --- */
 .footer {
 	border-top: 1px solid var(--border-color);
 	padding: 40px 0;
@@ -621,9 +612,7 @@ button {
 	align-items: center;
 	justify-content: center;
 	color: var(--text-muted);
-	transition:
-		background-color 0.3s,
-		color 0.3s;
+	transition: background-color 0.3s, color 0.3s;
 }
 
 .social-icon:hover {
@@ -656,7 +645,6 @@ button {
 		padding: 0 16px;
 	}
 
-	/* Header */
 	.header {
 		flex-direction: column;
 		align-items: flex-start;
@@ -705,7 +693,6 @@ button {
 		padding-bottom: 6px;
 	}
 
-	/* Hero */
 	.voting-hero {
 		flex-direction: column;
 		align-items: stretch;
@@ -756,18 +743,16 @@ button {
 		margin-top: 8px;
 	}
 
-	/* Filters */
 	.filters {
 		padding-bottom: 12px;
 		margin-bottom: 24px;
-		/* Скрываем скроллбар */
+
 		scrollbar-width: none;
 	}
 	.filters::-webkit-scrollbar {
 		display: none;
 	}
 
-	/* Movie Grid */
 	.movie-grid {
 		grid-template-columns: 1fr;
 		gap: 16px;
@@ -826,7 +811,6 @@ button {
 		padding: 14px;
 	}
 
-	/* Bottom Section */
 	.panel {
 		padding: 20px;
 	}
@@ -835,7 +819,6 @@ button {
 		margin-bottom: 20px;
 	}
 
-	/* Leaders Mobile Grid Magic */
 	.leader-item {
 		display: grid;
 		grid-template-columns: auto auto 1fr;
@@ -844,7 +827,7 @@ button {
 		align-items: center;
 	}
 	.leader-info {
-		display: contents; /* Растворяем обертку, чтобы управлять дочерними элементами */
+		display: contents;
 	}
 	.rank {
 		grid-column: 1;
@@ -877,7 +860,7 @@ button {
 		margin: 0;
 	}
 	.leader-progress {
-		display: contents; /* Растворяем обертку */
+		display: contents;
 	}
 	.leader-percent {
 		grid-column: 3;
@@ -890,12 +873,11 @@ button {
 		grid-row: 3;
 	}
 
-	/* Rules */
 	.rules-panel::before {
 		width: 120px;
 		height: 120px;
 	}
-	/* Footer */
+
 	.footer {
 		flex-direction: column;
 		gap: 32px;
@@ -921,9 +903,9 @@ button {
 		gap: 24px;
 	}
 	.socials {
-		order: 1; /* Соцсети идут первыми */
+		order: 1;
 	}
 	.copyright {
-		order: 2; /* Копирайт снизу */
+		order: 2;
 	}
 }

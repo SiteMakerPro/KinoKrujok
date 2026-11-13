@@ -2,10 +2,10 @@
 
 use yii\helpers\Html;
 
-/* @var $this yii\web\View */
-/* @var $model app\models\Movie */
 
-$this->title = 'Create Movie';
+
+
+$this->title = 'Добавить фильм';
 $this->params['breadcrumbs'][] = ['label' => 'Movies', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>

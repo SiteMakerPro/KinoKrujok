@@ -250,8 +250,6 @@ class AlertTest extends \Codeception\Test\Unit
         Yii::$app->session->setFlash('unrelated', $unrelatedMessage);
 
         Alert::widget();
-
-        // Simulate redirect
         Yii::$app->session->close();
         Yii::$app->session->open();
 

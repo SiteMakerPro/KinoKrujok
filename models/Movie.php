@@ -51,12 +51,12 @@ class Movie extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'title' => 'Title',
-            'year' => 'Year',
-            'rating' => 'Rating',
-            'imgPath' => 'Img Path',
-            'miniImgPath' => 'Mini Img Path',
-            'votesCountNumber' => 'Votes Count Number',
+            'title' => 'Название',
+            'year' => 'Год',
+            'rating' => 'Рейтинг',
+            'imgPath' => 'Путь к картинке',
+            'miniImgPath' => 'Путь к картинке мини',
+            'votesCountNumber' => 'Кол-во голосов на данный момент',
         ];
     }
 
