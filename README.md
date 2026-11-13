@@ -1,232 +1,52 @@
-<p align="center">
-    <a href="https://github.com/yiisoft" target="_blank">
-        <img src="https://avatars0.githubusercontent.com/u/993323" height="100px">
-    </a>
-    <h1 align="center">Yii 2 Basic Project Template</h1>
-    <br>
-</p>
+## 📖 О проекте
 
-Yii 2 Basic Project Template is a skeleton [Yii 2](http://www.yiiframework.com/) application best for
-rapidly creating small projects.
+**«КиноКружок»** — это полноценное веб-приложение, разработанное на фреймворке **Yii2**, представляющее собой платформу для совместного выбора фильмов на вечер. Проект демонстрирует навыки разработки full-stack приложений с использованием MVC-архитектуры, реляционных баз данных и безопасной обработки пользовательских данных. 
 
-The template contains the basic features including user login/logout and a contact page.
-It includes all commonly used configurations that would allow you to focus on adding new
-features to your application.
+В основе приложения лежит идея геймификации: пользователи голосуют за фильмы, ведут историю просмотров и получают персональную аналитику своих вкусов.
 
-[![Latest Stable Version](https://img.shields.io/packagist/v/yiisoft/yii2-app-basic.svg)](https://packagist.org/packages/yiisoft/yii2-app-basic)
-[![Total Downloads](https://img.shields.io/packagist/dt/yiisoft/yii2-app-basic.svg)](https://packagist.org/packages/yiisoft/yii2-app-basic)
-[![build](https://github.com/yiisoft/yii2-app-basic/workflows/build/badge.svg)](https://github.com/yiisoft/yii2-app-basic/actions?query=workflow%3Abuild)
+## ✨ Ключевой функционал
 
-DIRECTORY STRUCTURE
--------------------
+### 🔐 Аутентификация и Безопасность
+* **Кастомная система входа и регистрации:** Реализована через `IdentityInterface` и формы `LoginForm` / `SignupForm`.
+* **Role-Based Access Control (RBAC):** Гибкая настройка прав через `AccessControl`. Разделение на гостей (только просмотр), авторизованных пользователей (голосование, избранное) и администраторов (управление контентом).
+* **Защита от уязвимостей:** Все POST-запросы (включая удаление и голосование) защищены CSRF-токенами. Вывод данных экранируется через `Html::encode()` для предотвращения XSS-атак.
 
-      assets/             contains assets definition
-      commands/           contains console commands (controllers)
-      config/             contains application configurations
-      controllers/        contains Web controller classes
-      mail/               contains view files for e-mails
-      models/             contains model classes
-      runtime/            contains files generated during runtime
-      tests/              contains various tests for the basic application
-      vendor/             contains dependent 3rd-party packages
-      views/              contains view files for the Web application
-      web/                contains the entry script and Web resources
+### 🗳 Система голосования
+* **Single-Choice Voting (Один голос):** Умная логика, при которой пользователь может голосовать только за один фильм. При выборе нового фильма предыдущий голос автоматически аннулируется (запись в БД обновляется, а не дублируется).
+* **Счетчики реального времени:** Использование `updateAllCounters()` для атомарного обновления рейтинга фильма без блокировок таблиц БД.
+* **Умный UI:** Кнопка голосования динамически меняет состояние («Голосовать» / «Ваш голос учтен» / «Изменить голос»). 
 
+### 📊 История и Аналитика профиля
+* **Сложные SQL-запросы:** История просмотров и избранное реализованы через `JOIN` таблиц с возможностью фильтрации по жанрам, статусу («Понравилось/Не понравилось») и сортировкой (по дате, по рейтингу).
+* **Динамическая аналитика:** В профиле пользователя автоматически вычисляются **любимые жанры** на основе `GROUP BY` и подсчета частоты просмотренных фильмов.
+* **UX/UI:** Кастомные Flash-уведомления с плавной анимацией и авто-скрытием через Vanilla JS.
 
+### 🛠 Административная панель
+* **Полный CRUD:** Управление фильмами (создание, чтение, обновление, удаление) сгенерировано через **Gii** и кастомизировано под общий дизайн сайта.
+* **Безопасное удаление:** Удаление записей из БД защищено POST-запросами и модальными окнами подтверждения.
 
-REQUIREMENTS
-------------
+## 🏗 Архитектура и технические решения
 
-The minimum requirement by this project template that your Web server supports PHP 5.6.0.
+* **Паттерн MVC:** Четкое разделение логики (Controllers), работы с БД (Models, ActiveRecord) и представления (Views).
+* **Нормализация БД (3NF):** Вместо хранения строковых жанров в таблице фильмов, создана связь **Many-to-Many** через промежуточную таблицу `movie_genre`, а также отдельная сущность `genre`.
+* **Оптимизация запросов:** Использование `ActiveDataProvider` для пагинации списков и `asArray()` в тяжелых запросах с JOIN для снижения нагрузки на память.
+* **Отказ от стандартных шаблонов:** Вёрстка полностью кастомная (Flexbox/Grid, CSS-переменные), без использования тяжелых CSS-фреймворков, что обеспечивает высокую скорость загрузки и уникальный дизайн (Dark Theme).
+* **Кастомные виджеты:** Вывод списков реализован через `ListView` с переопределением `layout` и `options` для точного соответствия макету.
 
+## 🗄 Схема базы данных
+Проект использует реляционную базу данных MySQL. Ключевые таблицы:
+* `user` — аккаунты пользователей (с ролями).
+* `movie` — каталог фильмов (включая поля для постеров и рейтингов).
+* `genre` + `movie_genre` — реализация связи «Многие ко многим».
+* `vote` — таблица отданных голосов (строгая связь user_id -> movie_id).
+* `user_movie` — история просмотров с датами и лайками.
+* `favorite` — избранные фильмы.
+* `mood` — динамические категории фильмов на главной странице.
 
-INSTALLATION
-------------
+## Скриншоты
 
-### Install via Composer
+![alt text](image.png)
 
-If you do not have [Composer](http://getcomposer.org/), you may install it by following the instructions
-at [getcomposer.org](http://getcomposer.org/doc/00-intro.md#installation-nix).
+![alt text](image-1.png)
 
-You can then install this project template using the following command:
-
-~~~
-composer create-project --prefer-dist yiisoft/yii2-app-basic basic
-~~~
-
-Now you should be able to access the application through the following URL, assuming `basic` is the directory
-directly under the Web root.
-
-~~~
-http://localhost/basic/web/
-~~~
-
-### Install from an Archive File
-
-Extract the archive file downloaded from [yiiframework.com](http://www.yiiframework.com/download/) to
-a directory named `basic` that is directly under the Web root.
-
-Set cookie validation key in `config/web.php` file to some random secret string:
-
-```php
-'request' => [
-    'cookieValidationKey' => '<secret random string goes here>',
-],
-```
-
-You can then access the application through the following URL:
-
-~~~
-http://localhost/basic/web/
-~~~
-
-
-### Install with Docker
-
-Update your vendor packages
-
-    docker-compose run --rm php composer update --prefer-dist
-    
-Run the installation triggers (creating cookie validation code)
-
-    docker-compose run --rm php composer install    
-    
-Start the container
-
-    docker-compose up -d
-    
-You can then access the application through the following URL:
-
-    http://127.0.0.1:8000
-
-**NOTES:** 
-- Minimum required Docker engine version `17.04` for development (see [Performance tuning for volume mounts](https://docs.docker.com/docker-for-mac/osxfs-caching/))
-- The default configuration uses a host-volume in your home directory `.docker-composer` for composer caches
-
-
-CONFIGURATION
--------------
-
-### Database
-
-Edit the file `config/db.php` with real data, for example:
-
-```php
-return [
-    'class' => 'yii\db\Connection',
-    'dsn' => 'mysql:host=localhost;dbname=yii2basic',
-    'username' => 'root',
-    'password' => '1234',
-    'charset' => 'utf8',
-];
-```
-
-**NOTES:**
-- Yii won't create the database for you, this has to be done manually before you can access it.
-- Check and edit the other files in the `config/` directory to customize your application as required.
-- Refer to the README in the `tests` directory for information specific to basic application tests.
-
-
-TESTING
--------
-
-Tests are located in `tests` directory. They are developed with [Codeception PHP Testing Framework](http://codeception.com/).
-By default, there are 3 test suites:
-
-- `unit`
-- `functional`
-- `acceptance`
-
-Tests can be executed by running
-
-```
-vendor/bin/codecept run
-```
-
-The command above will execute unit and functional tests. Unit tests are testing the system components, while functional
-tests are for testing user interaction. Acceptance tests are disabled by default as they require additional setup since
-they perform testing in real browser. 
-
-
-### Running  acceptance tests
-
-To execute acceptance tests do the following:  
-
-1. Rename `tests/acceptance.suite.yml.example` to `tests/acceptance.suite.yml` to enable suite configuration
-
-2. Replace `codeception/base` package in `composer.json` with `codeception/codeception` to install full-featured
-   version of Codeception
-
-3. Update dependencies with Composer 
-
-    ```
-    composer update  
-    ```
-
-4. Download [Selenium Server](http://www.seleniumhq.org/download/) and launch it:
-
-    ```
-    java -jar ~/selenium-server-standalone-x.xx.x.jar
-    ```
-
-    In case of using Selenium Server 3.0 with Firefox browser since v48 or Google Chrome since v53 you must download [GeckoDriver](https://github.com/mozilla/geckodriver/releases) or [ChromeDriver](https://sites.google.com/a/chromium.org/chromedriver/downloads) and launch Selenium with it:
-
-    ```
-    # for Firefox
-    java -jar -Dwebdriver.gecko.driver=~/geckodriver ~/selenium-server-standalone-3.xx.x.jar
-    
-    # for Google Chrome
-    java -jar -Dwebdriver.chrome.driver=~/chromedriver ~/selenium-server-standalone-3.xx.x.jar
-    ``` 
-    
-    As an alternative way you can use already configured Docker container with older versions of Selenium and Firefox:
-    
-    ```
-    docker run --net=host selenium/standalone-firefox:2.53.0
-    ```
-
-5. (Optional) Create `yii2basic_test` database and update it by applying migrations if you have them.
-
-   ```
-   tests/bin/yii migrate
-   ```
-
-   The database configuration can be found at `config/test_db.php`.
-
-
-6. Start web server:
-
-    ```
-    tests/bin/yii serve
-    ```
-
-7. Now you can run all available tests
-
-   ```
-   # run all available tests
-   vendor/bin/codecept run
-
-   # run acceptance tests
-   vendor/bin/codecept run acceptance
-
-   # run only unit and functional tests
-   vendor/bin/codecept run unit,functional
-   ```
-
-### Code coverage support
-
-By default, code coverage is disabled in `codeception.yml` configuration file, you should uncomment needed rows to be able
-to collect code coverage. You can run your tests and collect coverage with the following command:
-
-```
-#collect coverage for all tests
-vendor/bin/codecept run --coverage --coverage-html --coverage-xml
-
-#collect coverage only for unit tests
-vendor/bin/codecept run unit --coverage --coverage-html --coverage-xml
-
-#collect coverage for unit and functional tests
-vendor/bin/codecept run functional,unit --coverage --coverage-html --coverage-xml
-```
-
-You can see code coverage output under the `tests/_output` directory.
+![alt text](image-2.png)
